@@ -19,11 +19,12 @@ Route::get('/', function () {
 });
 
 Route::get('/register', [AuthController::class, 'showRegister'])->name('registration-page');
-Route::get('/login', [AuthController::class, 'showLoginPage'])->name('login-page');
-Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-
+Route::get('/login', [AuthController::class, 'showLoginPage'])->name('login');
 Route::post('/user-register', [AuthController::class, 'register'])->name('register-user');
 Route::post('/user-login', [AuthController::class, 'login'])->name('login-user');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::middleware(['auth', 'throttle:60,1'])->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
+});
 

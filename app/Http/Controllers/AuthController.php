@@ -18,9 +18,9 @@ class AuthController extends Controller
     }
 
     function dashboard(){
-        if (!Auth::check()) {
-            return redirect()->route('login-page');
-        }
+        // if (!Auth::check()) {
+        //     return redirect()->route('login-page');
+        // }
         return view('dashboard.index');
     }
 
@@ -57,10 +57,8 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            // Login successful — session automatically set ho jaata hai
             return redirect()->route('dashboard');
         } else {
-            // Login failed
             return back()->withErrors(['email' => 'Invalid credentials']);
         }
     }
