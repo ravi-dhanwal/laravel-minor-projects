@@ -254,7 +254,7 @@
     <div class="form-box">
 
         <div class="top-link">
-            Already have an account? <a href="{{ route('login-page') }}">Sign in</a>
+            Already have an account? <a href="{{ route('login') }}">Sign in</a>
         </div>
 
         <h2>Create Account</h2>
@@ -308,7 +308,7 @@
             <button type="submit" class="btn-submit">Create Account &rarr;</button>
 
             <div class="footer-text">
-                Already registered? <a href="{{ route('login-page') }}">Login here</a>
+                Already registered? <a href="{{ route('login') }}">Login here</a>
             </div>
         </form>
     </div>
