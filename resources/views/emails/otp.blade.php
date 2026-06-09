@@ -1,18 +1,19 @@
-<x-mail::message>
-# Your 2FA Verification Code
+@extends('emails.layout')
+@php $headerSubtitle = 'Two-Factor Authentication'; @endphp
 
-Dear User,
+@section('content')
+    <h2>🔐 Verification Code</h2>
+    <p>Hi there! You have requested to enable <strong>Two-Factor Authentication</strong> on your account. Use the OTP below to proceed:</p>
 
-Use the OTP below to enable Two-Factor Authentication on your account.
+    <div class="otp-box">
+        <span>{{ $otp }}</span>
+    </div>
 
-<x-mail::panel>
-# {{ $otp }}
-</x-mail::panel>
+    <div class="info-box">
+        <p>⏱ This code is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
+    </div>
 
-This code is valid for **10 minutes**. Do not share it with anyone.
-
-If you did not request this, please ignore this email.
-
-Thanks,
-{{ config('app.name') }}
-</x-mail::message>
+    <div class="warning">
+        <p>🚨 If you did not request this, please ignore this email and change your password immediately.</p>
+    </div>
+@endsection

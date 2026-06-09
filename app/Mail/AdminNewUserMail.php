@@ -2,26 +2,27 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OtpMail extends Mailable
+class AdminNewUserMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public string $otp) {}
+    public function __construct(public User $user) {}
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your 2FA OTP - MyApp');
+        return new Envelope(subject: 'New User Registered - ' . config('app.name'));
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.otp');
+        return new Content(view: 'emails.admin-new-user');
     }
 
     public function attachments(): array

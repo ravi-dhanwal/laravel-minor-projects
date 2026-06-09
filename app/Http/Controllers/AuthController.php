@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+
     function showRegister(){
         return view('auth.register'); 
     }
@@ -21,10 +23,10 @@ class AuthController extends Controller
     }
 
     function dashboard(){
-        // if (!Auth::check()) {
-        //     return redirect()->route('login-page');
-        // }
-        return view('dashboard.index');
+        $users = Auth::user()->role === 'admin'
+            ? User::orderBy('created_at', 'desc')->get()
+            : collect();
+        return view('dashboard.index', compact('users'));
     }
 
     function register(Request $request){
@@ -48,6 +50,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        event(new UserRegistered($user));
 
         return redirect()->route('dashboard');
     }

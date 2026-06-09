@@ -14,6 +14,19 @@ use App\Http\Controllers\AuthController;
 |
 */
 
+// ⚠️ REMOVE IN PRODUCTION — email preview routes
+if (app()->environment('local')) {
+    Route::get('/preview/email/otp', fn() => new \App\Mail\OtpMail('123456'));
+    Route::get('/preview/email/welcome', function () {
+        $user = \App\Models\User::first() ?? new \App\Models\User(['name' => 'John Doe', 'email' => 'john@example.com', 'role' => 'user', 'created_at' => now()]);
+        return new \App\Mail\WelcomeMail($user);
+    });
+    Route::get('/preview/email/admin', function () {
+        $user = \App\Models\User::first() ?? new \App\Models\User(['name' => 'John Doe', 'email' => 'john@example.com', 'role' => 'user', 'created_at' => now()]);
+        return new \App\Mail\AdminNewUserMail($user);
+    });
+}
+
 Route::get('/', function () {
     return view('auth.register');
 });

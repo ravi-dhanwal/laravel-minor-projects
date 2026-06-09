@@ -7,18 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; }
 
     .left-panel {
         width: 42%;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
         padding: 50px 40px;
-        position: relative;
-        overflow: hidden;
+        position: relative; overflow: hidden; flex-shrink: 0;
     }
     .left-panel .deco-circle { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.08); }
     .left-panel .deco-circle.c1 { width: 300px; height: 300px; top: -80px; right: -80px; }
@@ -30,8 +27,7 @@
         background: rgba(255,255,255,0.2);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-size: 36px;
-        margin-bottom: 24px;
+        font-size: 36px; margin-bottom: 24px;
         backdrop-filter: blur(10px);
         border: 2px solid rgba(255,255,255,0.3);
     }
@@ -43,12 +39,10 @@
         background: rgba(255,255,255,0.12);
         border: 1px solid rgba(255,255,255,0.2);
         border-radius: 14px;
-        padding: 20px 22px;
-        max-width: 300px;
-        z-index: 1;
-        backdrop-filter: blur(6px);
+        padding: 20px 22px; max-width: 300px;
+        z-index: 1; backdrop-filter: blur(6px);
     }
-    .info-box p { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.7; font-style: normal; margin: 0; }
+    .info-box p { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.7; margin: 0; }
     .info-box .step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
     .info-box .step:last-child { margin-bottom: 0; }
     .info-box .step-dot {
@@ -62,68 +56,40 @@
     .right-panel {
         flex: 1;
         background: #f8f9ff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        display: flex; justify-content: center; align-items: center;
         padding: 40px 50px;
-        overflow-y: auto;
+        overflow-y: auto; min-height: 100vh;
     }
 
     .form-box { width: 100%; max-width: 400px; }
-
     .form-box h2 { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
     .form-box .subtitle { font-size: 14px; color: #888; margin-bottom: 30px; line-height: 1.6; }
-    .form-box .subtitle strong { color: #555; }
 
     .alert-error {
-        background: #fff5f5;
-        border: 1px solid #fed7d7;
-        color: #c53030;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 13px;
-        margin-bottom: 20px;
+        background: #fff5f5; border: 1px solid #fed7d7; color: #c53030;
+        padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;
     }
 
     .otp-label { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 12px; display: block; }
 
-    .otp-inputs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 24px;
-    }
+    .otp-inputs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
     .otp-inputs input {
         width: 52px; height: 58px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: 600;
+        text-align: center; font-size: 22px; font-weight: 600;
         font-family: 'Inter', sans-serif;
-        border: 1.5px solid #e2e6f0;
-        border-radius: 10px;
-        background: #fff;
-        color: #1a1a2e;
-        outline: none;
-        transition: 0.2s;
+        border: 1.5px solid #e2e6f0; border-radius: 10px;
+        background: #fff; color: #1a1a2e; outline: none; transition: 0.2s;
+        flex: 1; min-width: 40px;
     }
-    .otp-inputs input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
-    }
+    .otp-inputs input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
     .otp-inputs input.is-invalid { border-color: #e53e3e; }
 
     .btn-submit {
-        width: 100%;
-        padding: 13px;
-        border: none;
-        border-radius: 10px;
+        width: 100%; padding: 13px; border: none; border-radius: 10px;
         background: linear-gradient(135deg, #667eea, #764ba2);
-        color: #fff;
-        font-size: 15px;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer;
-        transition: 0.3s;
-        box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+        color: #fff; font-size: 15px; font-weight: 600;
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        transition: 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.4);
     }
     .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.5); }
 
@@ -131,9 +97,17 @@
     .footer-text a { color: #667eea; font-weight: 600; text-decoration: none; }
 
     @media (max-width: 768px) {
+        body { flex-direction: column; }
         .left-panel { display: none; }
-        .right-panel { padding: 30px 25px; }
+        .right-panel { padding: 36px 24px; min-height: 100vh; align-items: flex-start; padding-top: 48px; }
         .otp-inputs input { width: 44px; height: 50px; font-size: 18px; }
+    }
+
+    @media (max-width: 400px) {
+        .right-panel { padding: 32px 16px; }
+        .form-box h2 { font-size: 22px; }
+        .otp-inputs { gap: 6px; }
+        .otp-inputs input { height: 46px; font-size: 16px; }
     }
 </style>
 </head>
@@ -209,34 +183,22 @@
     digits.forEach((input, i) => {
         input.addEventListener('input', () => {
             input.value = input.value.replace(/\D/g, '');
-            if (input.value && i < digits.length - 1) {
-                digits[i + 1].focus();
-            }
+            if (input.value && i < digits.length - 1) digits[i + 1].focus();
         });
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !input.value && i > 0) {
-                digits[i - 1].focus();
-            }
+            if (e.key === 'Backspace' && !input.value && i > 0) digits[i - 1].focus();
         });
-        // Paste support — paste 6 digits at once
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-            pasted.split('').forEach((ch, j) => {
-                if (digits[j]) digits[j].value = ch;
-            });
-            const last = Math.min(pasted.length, digits.length - 1);
-            digits[last].focus();
+            pasted.split('').forEach((ch, j) => { if (digits[j]) digits[j].value = ch; });
+            digits[Math.min(pasted.length, digits.length - 1)].focus();
         });
     });
 
     form.addEventListener('submit', (e) => {
         const otp = Array.from(digits).map(d => d.value).join('');
-        if (otp.length < 6) {
-            e.preventDefault();
-            digits[otp.length]?.focus();
-            return;
-        }
+        if (otp.length < 6) { e.preventDefault(); digits[otp.length]?.focus(); return; }
         hiddenOtp.value = otp;
     });
 </script>
