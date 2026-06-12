@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #f0f2ff; min-height: 100vh; display: flex; }
@@ -99,7 +100,9 @@
         font-size: 16px; font-weight: 700; color: #fff;
         flex-shrink: 0;
         border: 2px solid rgba(255,255,255,0.3);
+        overflow: hidden;
     }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
     .user-meta .uname { color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-meta .urole { color: rgba(255,255,255,0.55); font-size: 11px; text-transform: capitalize; }
@@ -236,6 +239,58 @@
     }
     .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(102,126,234,0.45); }
 
+    /* PROFILE PHOTO */
+    .profile-photo-row {
+        display: flex; align-items: center; gap: 20px;
+        margin-bottom: 20px; padding-bottom: 20px;
+        border-bottom: 2px solid #f0f2ff;
+    }
+
+    .profile-avatar-lg {
+        width: 84px; height: 84px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 32px; font-weight: 700;
+        overflow: hidden;
+    }
+    .profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+    .btn-cancel {
+        padding: 9px 22px;
+        background: #fff;
+        border: 1.5px solid #e2e6f0;
+        color: #555; border-radius: 8px;
+        font-size: 13px; font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer; transition: 0.2s;
+    }
+    .btn-cancel:hover { border-color: #667eea; color: #667eea; }
+
+    /* PHOTO MODAL */
+    .modal-overlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 200;
+        align-items: center; justify-content: center;
+    }
+    .modal-overlay.visible { display: flex; }
+
+    .modal-box {
+        background: #fff; border-radius: 16px; padding: 24px;
+        width: 90%; max-width: 420px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    #photo-input {
+        width: 100%; font-size: 13px; font-family: 'Inter', sans-serif;
+    }
+
+    .modal-actions {
+        display: flex; justify-content: flex-end; gap: 10px;
+        margin-top: 18px;
+    }
+
     .alert-note {
         background: rgba(102,126,234,0.07);
         border: 1px solid rgba(102,126,234,0.2);
@@ -362,54 +417,6 @@
 
     .otp-inputs input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.12); }
 
-    /* USERS TABLE */
-    .users-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .users-header h3 { font-size: 16px; font-weight: 700; color: #1a1a2e; }
-    .users-count { font-size: 12px; color: #999; margin-top: 2px; }
-
-    .search-box {
-        display: flex; align-items: center; gap: 8px;
-        background: #fff; border: 1.5px solid #e2e6f0;
-        border-radius: 10px; padding: 8px 14px;
-        font-size: 13px; color: #555; transition: 0.2s;
-    }
-    .search-box:focus-within { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
-    .search-box input { border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 13px; color: #333; width: 180px; background: transparent; }
-
-    .users-table-wrap { overflow-x: auto; border-radius: 16px; box-shadow: 0 2px 12px rgba(102,126,234,0.08); border: 1px solid rgba(102,126,234,0.07); }
-
-    .users-table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
-    .users-table thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .users-table thead th { color: #fff; font-weight: 600; padding: 14px 18px; text-align: left; white-space: nowrap; font-size: 12px; letter-spacing: 0.3px; }
-    .users-table thead th:first-child { border-radius: 0; }
-
-    .users-table tbody tr { border-bottom: 1px solid #f0f2ff; transition: 0.15s; }
-    .users-table tbody tr:last-child { border-bottom: none; }
-    .users-table tbody tr:hover { background: #f8f9ff; }
-    .users-table td { padding: 14px 18px; color: #444; vertical-align: middle; }
-
-    .user-cell { display: flex; align-items: center; gap: 10px; }
-    .user-cell .avatar {
-        width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        display: flex; align-items: center; justify-content: center;
-        color: #fff; font-size: 13px; font-weight: 700;
-    }
-    .user-cell .uinfo .uname { font-weight: 600; color: #1a1a2e; font-size: 13px; }
-    .user-cell .uinfo .uemail { font-size: 11px; color: #999; }
-
-    .pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .pill.admin  { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; }
-    .pill.user   { background: rgba(66,153,225,0.12); color: #2b6cb0; }
-    .pill.active { background: rgba(72,187,120,0.12); color: #276749; }
-
-    .empty-state { text-align: center; padding: 48px 20px; color: #bbb; font-size: 14px; }
-
-    @media (max-width: 600px) {
-        .search-box input { width: 120px; }
-        .users-table thead th, .users-table td { padding: 12px 12px; }
-    }
-
     /* Hamburger button — hidden on desktop */
     .hamburger {
         display: none;
@@ -505,10 +512,10 @@
             <span>Dashboard</span>
         </button>
         @if(Auth::user()->role === 'admin')
-        <button class="nav-item" data-section="users">
+        <a href="{{ route('users.index') }}" class="nav-item">
             <span class="nav-icon">&#128101;</span>
             <span>Users</span>
-        </button>
+        </a>
         @endif
         <button class="nav-item" data-section="profile">
             <span class="nav-icon">&#128100;</span>
@@ -527,7 +534,13 @@
     </nav>
 
     <div class="sidebar-user">
-        <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+        <div class="user-avatar" id="sidebar-avatar">
+            @if(Auth::user()->profile_photo)
+                <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
+            @else
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+            @endif
+        </div>
         <div class="user-meta">
             <div class="uname">{{ Auth::user()->name }}</div>
             <div class="urole">{{ Auth::user()->role }}</div>
@@ -603,82 +616,46 @@
         </div>
     </div>
 
-    <!-- ===== PROFILE SECTION (placeholder) ===== -->
+    <!-- ===== PROFILE SECTION ===== -->
     <div class="section" id="section-profile">
         <div class="card" style="max-width:500px;">
             <div class="card-title">&#128100; Profile</div>
+
+            <div class="profile-photo-row">
+                <div class="profile-avatar-lg" id="profile-avatar">
+                    @if(Auth::user()->profile_photo)
+                        <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    @endif
+                </div>
+                <button type="button" class="btn-save" id="open-photo-modal">Change Photo</button>
+            </div>
+
             <div class="info-row"><span class="label">Name</span><span class="value">{{ Auth::user()->name }}</span></div>
             <div class="info-row"><span class="label">Email</span><span class="value" style="text-transform:none;">{{ Auth::user()->email }}</span></div>
             <div class="info-row"><span class="label">Role</span><span class="badge-role">{{ Auth::user()->role }}</span></div>
         </div>
     </div>
 
-    <!-- ===== USERS SECTION (admin only) ===== -->
-    @if(Auth::user()->role === 'admin')
-    <div class="section" id="section-users">
-        <div class="card" style="padding: 24px;">
-            <div class="users-header">
-                <div>
-                    <h3>&#128101; All Users</h3>
-                    <div class="users-count">{{ $users->count() }} registered user(s)</div>
-                </div>
-                <div class="search-box">
-                    <span>&#128269;</span>
-                    <input type="text" id="user-search" placeholder="Search by name or email...">
-                </div>
+    <!-- ===== PROFILE PHOTO MODAL ===== -->
+    <div class="modal-overlay" id="photo-modal-overlay">
+        <div class="modal-box">
+            <div class="card-title">&#128247; Update Profile Photo</div>
+
+            <div id="photo-picker">
+                <input type="file" id="photo-input" accept="image/*">
+                <p style="font-size:12px; color:#999; margin-top:10px;">Select an image, crop it into a circle, and save.</p>
             </div>
 
-            <div class="users-table-wrap">
-                <table class="users-table" id="users-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>User</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>2FA</th>
-                            <th>Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($users as $u)
-                        <tr>
-                            <td style="color:#bbb; font-size:12px;">{{ $loop->iteration }}</td>
-                            <td>
-                                <div class="user-cell">
-                                    <div class="avatar">{{ strtoupper(substr($u->name, 0, 1)) }}</div>
-                                    <div class="uinfo">
-                                        <div class="uname">
-                                            {{ $u->name }}
-                                            @if($u->id === Auth::id())
-                                                <span style="font-size:10px; color:#667eea; font-weight:600;">(You)</span>
-                                            @endif
-                                        </div>
-                                        <div class="uemail">{{ $u->email }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="pill {{ $u->role }}">{{ ucfirst($u->role) }}</span></td>
-                            <td><span class="pill active">Active</span></td>
-                            <td>
-                                @if($u->two_fa_is_active)
-                                    <span class="pill active">&#10003; On</span>
-                                @else
-                                    <span class="pill" style="background:#fff5f5; color:#c53030;">&#10005; Off</span>
-                                @endif
-                            </td>
-                            <td style="color:#888; font-size:12px; white-space:nowrap;">{{ $u->created_at->format('d M Y') }}</td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="6"><div class="empty-state">No users found.</div></td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div id="croppie-container" style="margin-top:16px;"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="photo-modal-cancel">Cancel</button>
+                <button type="button" class="btn-save" id="photo-modal-save" style="display:none;">Save Photo</button>
             </div>
         </div>
     </div>
-
-    @endif
 
     <!-- ===== SETTINGS SECTION (placeholder) ===== -->
     <div class="section" id="section-settings">
@@ -823,6 +800,7 @@
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
 <script>
     const navItems  = document.querySelectorAll('.nav-item[data-section]');
     const sections  = document.querySelectorAll('.section');
@@ -830,20 +808,10 @@
 
     const titles = {
         dashboard : 'Dashboard',
-        users     : 'Users',
         profile   : 'Profile',
         settings  : 'Settings',
         security  : 'Security',
     };
-
-    // User search
-    document.getElementById('user-search')?.addEventListener('input', function () {
-        const q = this.value.toLowerCase();
-        document.querySelectorAll('#users-table tbody tr').forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(q) ? '' : 'none';
-        });
-    });
 
     // 2FA Toggle Logic
     const tfaToggle  = document.getElementById('tfa-toggle');
@@ -971,6 +939,93 @@
             // close sidebar on mobile after nav click
             if (window.innerWidth <= 600) closeSidebar();
         });
+    });
+
+    // ===== Profile Photo Upload (Croppie) =====
+    const photoModal     = document.getElementById('photo-modal-overlay');
+    const openPhotoBtn   = document.getElementById('open-photo-modal');
+    const cancelPhotoBtn = document.getElementById('photo-modal-cancel');
+    const savePhotoBtn   = document.getElementById('photo-modal-save');
+    const photoInput     = document.getElementById('photo-input');
+    const photoPicker    = document.getElementById('photo-picker');
+    const croppieBox     = document.getElementById('croppie-container');
+
+    let croppieInstance = null;
+
+    function resetPhotoModal() {
+        photoInput.value = '';
+        photoPicker.style.display = 'block';
+        croppieBox.style.display = 'none';
+        savePhotoBtn.style.display = 'none';
+        if (croppieInstance) {
+            croppieInstance.destroy();
+            croppieInstance = null;
+        }
+        croppieBox.innerHTML = '';
+    }
+
+    openPhotoBtn?.addEventListener('click', () => {
+        resetPhotoModal();
+        photoModal.classList.add('visible');
+    });
+
+    cancelPhotoBtn?.addEventListener('click', () => {
+        photoModal.classList.remove('visible');
+        resetPhotoModal();
+    });
+
+    photoInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            photoPicker.style.display = 'none';
+            croppieBox.style.display = 'block';
+            savePhotoBtn.style.display = 'inline-block';
+
+            if (croppieInstance) croppieInstance.destroy();
+
+            croppieInstance = new Croppie(croppieBox, {
+                viewport: { width: 200, height: 200, type: 'circle' },
+                boundary: { width: 260, height: 260 },
+                showZoomer: true,
+            });
+
+            croppieInstance.bind({ url: ev.target.result });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    savePhotoBtn?.addEventListener('click', () => {
+        if (!croppieInstance) return;
+
+        savePhotoBtn.textContent = 'Saving...';
+        savePhotoBtn.disabled = true;
+
+        croppieInstance.result({ type: 'base64', size: 'viewport', format: 'png', circle: false })
+            .then((base64) => {
+                return fetch('{{ route("profile.photo.upload") }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ photo: base64 }),
+                });
+            })
+            .then(r => r.json())
+            .then((data) => {
+                if (data.url) {
+                    const imgHtml = `<img src="${data.url}" alt="">`;
+                    document.getElementById('profile-avatar').innerHTML = imgHtml;
+                    document.getElementById('sidebar-avatar').innerHTML = imgHtml;
+                }
+                photoModal.classList.remove('visible');
+                resetPhotoModal();
+            })
+            .catch(() => alert('Failed to upload photo. Please try again.'))
+            .finally(() => {
+                savePhotoBtn.textContent = 'Save Photo';
+                savePhotoBtn.disabled = false;
+            });
     });
 </script>
 

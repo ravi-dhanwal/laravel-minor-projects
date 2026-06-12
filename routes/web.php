@@ -41,10 +41,15 @@ Route::post('/2fa/login-verify', [AuthController::class, 'verifyLoginOtp'])->nam
 
 Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard/users', [AuthController::class, 'usersList'])->name('users.index');
+    Route::get('/dashboard/users/{user}', [AuthController::class, 'showUser'])->name('users.show');
+    Route::post('/dashboard/users/{user}/toggle-status', [AuthController::class, 'toggleUserStatus'])->name('users.toggle-status');
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/2fa/send-otp', [AuthController::class, 'sendOtp'])->name('2fa.send');
     Route::post('/2fa/verify-otp', [AuthController::class, 'verifyOtp'])->name('2fa.verify');
     Route::post('/2fa/disable', [AuthController::class, 'disableTfa'])->name('2fa.disable');
+
+    Route::post('/profile/photo', [AuthController::class, 'uploadProfilePhoto'])->name('profile.photo.upload');
 });
 

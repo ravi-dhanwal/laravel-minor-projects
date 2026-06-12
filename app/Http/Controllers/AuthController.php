@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Mail\OtpMail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -23,10 +24,56 @@ class AuthController extends Controller
     }
 
     function dashboard(){
-        $users = Auth::user()->role === 'admin'
-            ? User::orderBy('created_at', 'desc')->get()
-            : collect();
-        return view('dashboard.index', compact('users'));
+        return view('dashboard.index');
+    }
+
+    function usersList(){
+        abort_unless(Auth::user()->role === 'admin', 403);
+
+        $users = User::orderBy('created_at', 'desc')->get();
+
+        return view('dashboard.users-list', compact('users'));
+    }
+
+    function showUser(User $user){
+        abort_unless(Auth::user()->role === 'admin', 403);
+
+        return view('dashboard.user-details', compact('user'));
+    }
+
+    function uploadProfilePhoto(Request $request){
+        $request->validate([
+            'photo' => 'required|string',
+        ]);
+
+        if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $request->photo)) {
+            return response()->json(['error' => 'Invalid image format.'], 422);
+        }
+
+        $user = Auth::user();
+        $imageData = base64_decode(substr($request->photo, strpos($request->photo, ',') + 1));
+
+        $filename = 'user_' . $user->id . '.png';
+        Storage::disk('public')->put('profile_photos/' . $filename, $imageData);
+
+        $user->update(['profile_photo' => $filename]);
+
+        return response()->json([
+            'message' => 'Profile photo updated successfully.',
+            'url' => Storage::url('profile_photos/' . $filename) . '?v=' . time(),
+        ]);
+    }
+
+    function toggleUserStatus(User $user){
+        abort_unless(Auth::user()->role === 'admin', 403);
+
+        if ($user->id === Auth::id()) {
+            return back()->withErrors(['user' => 'You cannot deactivate your own account.']);
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        return back()->with('success', $user->is_active ? 'User activated.' : 'User deactivated.');
     }
 
     function register(Request $request){
@@ -65,6 +112,11 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             /** @var User $user */
             $user = Auth::user();
+
+            if (!$user->is_active) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Your account has been deactivated. Please contact admin.']);
+            }
 
             if ($user->two_fa_is_active) {
                 // Don't fully login yet — hold user in session, send OTP

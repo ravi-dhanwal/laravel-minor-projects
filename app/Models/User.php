@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'role',
         'status',
+        'is_active',
+        'profile_photo',
         'two_fa_is_active',
         'two_fa_otp',
         'two_fa_expires_at',
