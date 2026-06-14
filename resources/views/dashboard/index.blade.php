@@ -511,12 +511,12 @@
             <span class="nav-icon">&#9671;</span>
             <span>Dashboard</span>
         </button>
-        @if(Auth::user()->role === 'admin')
+        @can('view users')
         <a href="{{ route('users.index') }}" class="nav-item">
             <span class="nav-icon">&#128101;</span>
             <span>Users</span>
         </a>
-        @endif
+        @endcan
         <button class="nav-item" data-section="profile">
             <span class="nav-icon">&#128100;</span>
             <span>Profile</span>
@@ -749,19 +749,20 @@
                         <div class="sec-sub">Update your login password</div>
                     </div>
                 </div>
-                <form class="change-password-form">
+                <form class="change-password-form" id="change-password-form">
                     <div class="cp-group">
                         <label>Current Password</label>
-                        <input type="password" placeholder="Enter current password">
+                        <input type="password" name="current_password" placeholder="Enter current password" required>
                     </div>
                     <div class="cp-group">
                         <label>New Password</label>
-                        <input type="password" placeholder="Min. 6 characters">
+                        <input type="password" name="new_password" placeholder="Min. 6 characters" minlength="6" required>
                     </div>
                     <div class="cp-group">
                         <label>Confirm New Password</label>
-                        <input type="password" placeholder="Repeat new password">
+                        <input type="password" name="new_password_confirmation" placeholder="Repeat new password" minlength="6" required>
                     </div>
+                    <div id="cp-message" style="display:none; font-size:13px; margin-bottom:10px;"></div>
                     <button type="submit" class="btn-save">Update Password</button>
                 </form>
             </div>
@@ -901,6 +902,57 @@
                 }
             })
             .catch(() => alert('Something went wrong. Please try again.'));
+        });
+    }
+
+    // Change Password
+    const changePasswordForm = document.getElementById('change-password-form');
+    const cpMessage = document.getElementById('cp-message');
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newPassword = changePasswordForm.new_password.value;
+            const confirmPassword = changePasswordForm.new_password_confirmation.value;
+
+            if (newPassword !== confirmPassword) {
+                cpMessage.style.display = 'block';
+                cpMessage.style.color = '#e53e3e';
+                cpMessage.textContent = 'New password and confirm password do not match.';
+                return;
+            }
+
+            fetch('{{ route("profile.password.update") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    current_password: changePasswordForm.current_password.value,
+                    new_password: newPassword,
+                    new_password_confirmation: confirmPassword,
+                })
+            })
+            .then(r => r.json().then(data => ({ status: r.status, data })))
+            .then(({ status, data }) => {
+                cpMessage.style.display = 'block';
+                if (status === 200) {
+                    cpMessage.style.color = '#38a169';
+                    cpMessage.textContent = data.message;
+                    changePasswordForm.reset();
+                } else {
+                    cpMessage.style.color = '#e53e3e';
+                    cpMessage.textContent = data.error || Object.values(data.errors || {}).flat().join(' ');
+                }
+            })
+            .catch(() => {
+                cpMessage.style.display = 'block';
+                cpMessage.style.color = '#e53e3e';
+                cpMessage.textContent = 'Something went wrong. Please try again.';
+            });
         });
     }
 
