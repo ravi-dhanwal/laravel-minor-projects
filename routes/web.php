@@ -51,5 +51,6 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::post('/2fa/disable', [AuthController::class, 'disableTfa'])->name('2fa.disable');
 
     Route::post('/profile/photo', [AuthController::class, 'uploadProfilePhoto'])->name('profile.photo.upload');
+    Route::post('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password.update');
 });
 

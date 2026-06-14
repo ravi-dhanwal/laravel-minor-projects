@@ -397,6 +397,7 @@
                         <td>
                             <div style="display:flex; gap:6px; align-items:center;">
                                 <a href="{{ route('users.show', $u->id) }}" class="pill" style="background: rgba(102,126,234,0.1); color:#553c9a; text-decoration:none;">View</a>
+                                @can('manage users')
                                 @if($u->id !== Auth::id())
                                 <form action="{{ route('users.toggle-status', $u->id) }}" method="POST" onsubmit="return confirm('{{ $u->is_active ? 'Deactivate' : 'Activate' }} this user?');">
                                     @csrf
@@ -407,6 +408,7 @@
                                     @endif
                                 </form>
                                 @endif
+                                @endcan
                             </div>
                         </td>
                     </tr>

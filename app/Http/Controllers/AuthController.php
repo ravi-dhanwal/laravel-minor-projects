@@ -28,7 +28,7 @@ class AuthController extends Controller
     }
 
     function usersList(){
-        abort_unless(Auth::user()->role === 'admin', 403);
+        abort_unless(Auth::user()->can('view users'), 403);
 
         $users = User::orderBy('created_at', 'desc')->get();
 
@@ -36,7 +36,7 @@ class AuthController extends Controller
     }
 
     function showUser(User $user){
-        abort_unless(Auth::user()->role === 'admin', 403);
+        abort_unless(Auth::user()->can('view users'), 403);
 
         return view('dashboard.user-details', compact('user'));
     }
@@ -64,8 +64,29 @@ class AuthController extends Controller
         ]);
     }
 
+    function updatePassword(Request $request){
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['error' => 'Current password is incorrect.'], 422);
+        }
+
+        if (Hash::check($request->new_password, $user->password)) {
+            return response()->json(['error' => 'New password must be different from the current password.'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+
+        return response()->json(['message' => 'Password updated successfully.']);
+    }
+
     function toggleUserStatus(User $user){
-        abort_unless(Auth::user()->role === 'admin', 403);
+        abort_unless(Auth::user()->can('manage users'), 403);
 
         if ($user->id === Auth::id()) {
             return back()->withErrors(['user' => 'You cannot deactivate your own account.']);
@@ -95,6 +116,8 @@ class AuthController extends Controller
             'password' => HASH::MAKE($request->password),
             'role' => $role,
         ]);
+
+        $user->assignRole($role);
 
         Auth::login($user);
         event(new UserRegistered($user));
