@@ -51,4 +51,14 @@ class User extends Authenticatable
         'two_fa_expires_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function isPro(): bool
+    {
+        return $this->payments()->where('status', 'paid')->exists();
+    }
 }

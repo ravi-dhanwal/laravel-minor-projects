@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,5 +53,12 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
 
     Route::post('/profile/photo', [AuthController::class, 'uploadProfilePhoto'])->name('profile.photo.upload');
     Route::post('/profile/password', [AuthController::class, 'updatePassword'])->name('profile.password.update');
+
+    Route::post('/billing/order', [PaymentController::class, 'createOrder'])->name('billing.order');
+    Route::post('/billing/verify', [PaymentController::class, 'verify'])->name('billing.verify');
 });
+
+// Called by Razorpay's servers directly, not a logged-in browser session —
+// must stay outside the `auth` group and is authenticated via webhook signature instead.
+Route::post('/webhooks/razorpay', [PaymentController::class, 'webhook'])->name('webhooks.razorpay');
 
