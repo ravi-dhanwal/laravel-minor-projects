@@ -247,55 +247,7 @@
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
 <!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-    <div class="deco d1"></div>
-    <div class="deco d2"></div>
-
-    <div class="sidebar-brand">
-        <div class="icon">&#9670;</div>
-        <span>MyApp</span>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-label">Main</div>
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <span class="nav-icon">&#9671;</span>
-            <span>Dashboard</span>
-        </a>
-        <a href="{{ route('users.index') }}" class="nav-item active">
-            <span class="nav-icon">&#128101;</span>
-            <span>Users</span>
-        </a>
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <span class="nav-icon">&#128100;</span>
-            <span>Profile</span>
-        </a>
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <span class="nav-icon">&#9881;</span>
-            <span>Settings</span>
-        </a>
-
-        <div class="nav-label" style="margin-top:20px;">Account</div>
-        <a href="{{ route('dashboard') }}" class="nav-item">
-            <span class="nav-icon">&#128274;</span>
-            <span>Security</span>
-        </a>
-    </nav>
-
-    <div class="sidebar-user">
-        <div class="user-avatar">
-            @if(Auth::user()->profile_photo)
-                <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
-            @else
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-            @endif
-        </div>
-        <div class="user-meta">
-            <div class="uname">{{ Auth::user()->name }}</div>
-            <div class="urole">{{ Auth::user()->role }}</div>
-        </div>
-    </div>
-</aside>
+@include('partials.sidebar')
 
 <!-- Main Content -->
 <div class="main-content">
@@ -397,7 +349,6 @@
                         <td>
                             <div style="display:flex; gap:6px; align-items:center;">
                                 <a href="{{ route('users.show', $u->id) }}" class="pill" style="background: rgba(102,126,234,0.1); color:#553c9a; text-decoration:none;">View</a>
-                                @can('manage users')
                                 @if($u->id !== Auth::id())
                                 <form action="{{ route('users.toggle-status', $u->id) }}" method="POST" onsubmit="return confirm('{{ $u->is_active ? 'Deactivate' : 'Activate' }} this user?');">
                                     @csrf
@@ -408,7 +359,6 @@
                                     @endif
                                 </form>
                                 @endif
-                                @endcan
                             </div>
                         </td>
                     </tr>

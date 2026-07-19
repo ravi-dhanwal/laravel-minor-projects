@@ -496,57 +496,7 @@
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
 <!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-    <div class="deco d1"></div>
-    <div class="deco d2"></div>
-
-    <div class="sidebar-brand">
-        <div class="icon">&#9670;</div>
-        <span>MyApp</span>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-label">Main</div>
-        <button class="nav-item active" data-section="dashboard">
-            <span class="nav-icon">&#9671;</span>
-            <span>Dashboard</span>
-        </button>
-        @can('view users')
-        <a href="{{ route('users.index') }}" class="nav-item">
-            <span class="nav-icon">&#128101;</span>
-            <span>Users</span>
-        </a>
-        @endcan
-        <button class="nav-item" data-section="profile">
-            <span class="nav-icon">&#128100;</span>
-            <span>Profile</span>
-        </button>
-        <button class="nav-item" data-section="settings">
-            <span class="nav-icon">&#9881;</span>
-            <span>Settings</span>
-        </button>
-
-        <div class="nav-label" style="margin-top:20px;">Account</div>
-        <button class="nav-item" data-section="security">
-            <span class="nav-icon">&#128274;</span>
-            <span>Security</span>
-        </button>
-    </nav>
-
-    <div class="sidebar-user">
-        <div class="user-avatar" id="sidebar-avatar">
-            @if(Auth::user()->profile_photo)
-                <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
-            @else
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-            @endif
-        </div>
-        <div class="user-meta">
-            <div class="uname">{{ Auth::user()->name }}</div>
-            <div class="urole">{{ Auth::user()->role }}</div>
-        </div>
-    </div>
-</aside>
+@include('partials.sidebar')
 
 <!-- Main Content -->
 <div class="main-content">
@@ -569,7 +519,7 @@
     </div>
 
     <!-- ===== DASHBOARD SECTION ===== -->
-    <div class="section active" id="section-dashboard">
+    <div class="section" id="section-dashboard">
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon purple">&#128101;</div>
@@ -799,9 +749,39 @@
 
     </div>
 
+    <!-- ===== BILLING SECTION ===== -->
+    <div class="section" id="section-billing">
+        <div class="sec-card" style="max-width:520px;">
+            <div class="sec-header">
+                <div class="sec-icon purple">&#128179;</div>
+                <div>
+                    <h3>Billing</h3>
+                    <div class="sec-sub">Manage your subscription</div>
+                </div>
+            </div>
+
+            @if(Auth::user()->isPro())
+                <div class="sec-row">
+                    <span class="slabel">&#11088; Plan</span>
+                    <span class="status-pill enabled">Pro</span>
+                </div>
+                <p style="font-size:13px; color:#666; margin-top:10px;">You're on the Pro plan. Thanks for your support!</p>
+            @else
+                <div class="sec-row">
+                    <span class="slabel">&#11088; Plan</span>
+                    <span class="status-pill disabled">Free</span>
+                </div>
+                <p style="font-size:13px; color:#666; margin:12px 0;">Upgrade to Pro (&#8377;499, one-time) to unlock premium features.</p>
+                <div id="billing-message" style="display:none; font-size:13px; margin-bottom:10px;"></div>
+                <button class="btn-save" id="upgrade-pro-btn">Upgrade to Pro</button>
+            @endif
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     const navItems  = document.querySelectorAll('.nav-item[data-section]');
     const sections  = document.querySelectorAll('.section');
@@ -812,7 +792,23 @@
         profile   : 'Profile',
         settings  : 'Settings',
         security  : 'Security',
+        billing   : 'Billing',
     };
+
+    function activateSection(target) {
+        const section = document.getElementById('section-' + target);
+        if (!section) return;
+
+        navItems.forEach(b => b.classList.toggle('active', b.dataset.section === target));
+        sections.forEach(s => s.classList.remove('active'));
+        section.classList.add('active');
+        pageTitle.textContent = titles[target] || target;
+    }
+
+    // Land on whichever section the URL hash points to (e.g. /dashboard#profile
+    // after navigating here from another page); default to "dashboard" otherwise.
+    const hashSection = window.location.hash.replace('#', '');
+    activateSection(document.getElementById('section-' + hashSection) ? hashSection : 'dashboard');
 
     // 2FA Toggle Logic
     const tfaToggle  = document.getElementById('tfa-toggle');
@@ -956,6 +952,79 @@
         });
     }
 
+    // Upgrade to Pro (Razorpay)
+    const upgradeBtn = document.getElementById('upgrade-pro-btn');
+    const billingMessage = document.getElementById('billing-message');
+
+    function resetUpgradeBtn() {
+        upgradeBtn.disabled = false;
+        upgradeBtn.textContent = 'Upgrade to Pro';
+    }
+
+    if (upgradeBtn) {
+        upgradeBtn.addEventListener('click', () => {
+            upgradeBtn.disabled = true;
+            upgradeBtn.textContent = 'Loading...';
+
+            fetch('{{ route("billing.order") }}', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(order => {
+                const rzp = new Razorpay({
+                    key: order.key,
+                    amount: order.amount,
+                    currency: order.currency,
+                    order_id: order.order_id,
+                    name: 'MyApp',
+                    description: 'Upgrade to Pro',
+                    prefill: { name: order.name, email: order.email },
+                    theme: { color: '#667eea' },
+                    modal: { ondismiss: resetUpgradeBtn },
+                    handler: function (response) {
+                        console.log(response);
+                        fetch('{{ route("billing.verify") }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            })
+                        })
+                        .then(r => r.json().then(data => ({ status: r.status, data })))
+                        .then(({ status, data }) => {
+                            billingMessage.style.display = 'block';
+                            if (status === 200) {
+                                billingMessage.style.color = '#38a169';
+                                billingMessage.textContent = data.message;
+                                setTimeout(() => location.reload(), 1200);
+                            } else {
+                                billingMessage.style.color = '#e53e3e';
+                                billingMessage.textContent = data.error || 'Verification failed.';
+                                resetUpgradeBtn();
+                            }
+                        })
+                        .catch(() => {
+                            billingMessage.style.display = 'block';
+                            billingMessage.style.color = '#e53e3e';
+                            billingMessage.textContent = 'Verification failed. Please try again.';
+                            resetUpgradeBtn();
+                        });
+                    },
+                });
+                rzp.open();
+            })
+            .catch(() => {
+                billingMessage.style.display = 'block';
+                billingMessage.style.color = '#e53e3e';
+                billingMessage.textContent = 'Could not start payment. Please try again.';
+                resetUpgradeBtn();
+            });
+        });
+    }
+
     // Hamburger / sidebar toggle
     const sidebar        = document.getElementById('sidebar');
     const overlay        = document.getElementById('sidebar-overlay');
@@ -973,20 +1042,10 @@
 
     overlay.addEventListener('click', closeSidebar);
 
-    navItems.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const target = btn.dataset.section;
-
-            // active nav
-            navItems.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // show section
-            sections.forEach(s => s.classList.remove('active'));
-            document.getElementById('section-' + target).classList.add('active');
-
-            // update title
-            pageTitle.textContent = titles[target] || target;
+    navItems.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            activateSection(link.dataset.section);
 
             // close sidebar on mobile after nav click
             if (window.innerWidth <= 600) closeSidebar();
